@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:gif/gif.dart';
 import 'dart:async';
@@ -16,7 +17,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
       title: 'Clock',
       theme: ThemeData(
         // This is the theme of your application.
@@ -37,7 +41,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
       ),
       home: const MyClock(title: "Rubik's Clock"),
-    );
+    ));
   }
 }
 
@@ -58,6 +62,8 @@ class MyClock extends StatefulWidget {
   @override
   State<MyClock> createState() => _MyClockState();
 }
+
+enum ClockTypes { clock12, clock24 }
 
 class _MyClockState extends State<MyClock> {
   DateTime _dateTime = DateTime.now();
@@ -98,8 +104,17 @@ class _MyClockState extends State<MyClock> {
     var monthDay = DateFormat('MMMd').format(_dateTime);
     var year = DateFormat('yyyy').format(_dateTime);
 
-    final String gifName = 'assets/12hourclock-128x128/rubiks-clock-$hour$minute.gif';
-    //print('rubiks-clock-$hour$minute.gif');
+    var appState = context.watch<MyAppState>();
+    var clockType = appState.clockType;
+    
+    var clockTypeString = '24hourclock';
+    if (clockType == ClockTypes.clock12) {
+      clockTypeString = '12hourclock';
+    }
+
+    final String rubiksGifName = 'assets/$clockTypeString-128x128/rubiks-clock-$hour$minute.gif';
+
+    //print(rubiksGifName);
 
     return Scaffold(
       appBar: AppBar(
@@ -139,7 +154,7 @@ class _MyClockState extends State<MyClock> {
                     fps: 30,
                     autostart: Autostart.once,
                     image: AssetImage(
-                        gifName),
+                        rubiksGifName),
                   ),
               ),
               //Text(
@@ -153,10 +168,57 @@ class _MyClockState extends State<MyClock> {
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
+              RadioGroup<ClockTypes>(
+                  groupValue: clockType,
+                  onChanged: (ClockTypes? value) {
+                      appState.setClock(value!);
+                  },
+                  child: Column(
+                    children: <Widget> [
+                      ListTile(
+                        title: const Text('AM/PM'),
+                        leading: Radio<ClockTypes>(
+                          value: ClockTypes.clock12,
+                          fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Theme.of(context).colorScheme.surfaceBright;
+                            } else {
+                              return Theme.of(context).colorScheme.surfaceDim;
+                            }
+                          })
+                        ),
+                      ),
+                      ListTile(
+                        title: const Text('24 Hour'),
+                        leading: Radio<ClockTypes>(
+                          value: ClockTypes.clock24,
+                          fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Theme.of(context).colorScheme.surfaceBright;
+                            } else {
+                              return Theme.of(context).colorScheme.surfaceDim;
+                            }
+                          })
+                        ),
+                      ),
+                    ],
+                  ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+class MyAppState extends ChangeNotifier {
+
+  ClockTypes clockType = ClockTypes.clock24;
+
+  void setClock(ClockTypes newClockType) {
+    clockType = newClockType;
+    notifyListeners();
+  }
+
 }
