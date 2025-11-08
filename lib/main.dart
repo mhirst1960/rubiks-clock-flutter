@@ -8,6 +8,22 @@ void main() {
   runApp(const MyApp());
 }
 
+var myColors = {
+  'brightTeal': Color(0x3ad6c5),
+  'lightTeal': Color(0x30cebb),
+  'darkTeal': Color(0x005151),
+  'contrastingTeal': Color(0x13352c),
+  'lightVolt': Color(0xe5ff1f),
+  'brightVolt': Color(0xe3e829),
+  'lightGrey1': Color(0xf5f5f5),
+  'lightGrey2': Color(0xdfe1df),
+  'lightGrey3': Color(0xd5d6d2),
+  'lightGrey4': Color(0xc9cac8),
+  'lightTaupe': Color(0xf5ebdc),
+  'taupe': Color(0xebdccd),
+  'black': Color(0x000000),
+  'white': Color(0xffffff),
+};
 class MyApp extends StatelessWidget {
   const MyApp(
     {
@@ -17,7 +33,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
+        
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
@@ -38,8 +54,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
+
+colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 205, 120, 8)),
       ),
+        //colorScheme: ColorScheme.fromSeed(seedColor: myColors['contrastingTeal']!),),
       home: const MyClock(title: "Rubik's Clock"),
     ));
   }
@@ -96,7 +114,19 @@ class _MyClockState extends State<MyClock> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    var theme = Theme.of(context);
 
+    final styleBig = theme.textTheme.headlineMedium!.copyWith(
+      //color: theme.colorScheme.onPrimary,
+      fontFamily: 'dm sans',
+      //fontFamily: 'times new roman',
+    );
+
+   const styleMedium = TextStyle(
+                          fontFamily: 'dm sans',
+                          //fontFamily: 'times new roman',
+                          );
+    
     var hour =
         DateFormat('HH').format(_dateTime);
     var minute = DateFormat('mm').format(_dateTime);
@@ -165,7 +195,8 @@ class _MyClockState extends State<MyClock> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   '$dayOfWeek $monthDay $year',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  //style: Theme.of(context).textTheme.headlineMedium, 
+                  style:styleBig,
                 ),
               ),
               RadioGroup<ClockTypes>(
@@ -176,7 +207,8 @@ class _MyClockState extends State<MyClock> {
                   child: Column(
                     children: <Widget> [
                       ListTile(
-                        title: const Text('AM/PM'),
+                        title: const Text('AM/PM',
+                          style: styleMedium,),
                         leading: Radio<ClockTypes>(
                           value: ClockTypes.clock12,
                           fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
@@ -189,8 +221,9 @@ class _MyClockState extends State<MyClock> {
                         ),
                       ),
                       ListTile(
-                        title: const Text('24 Hour'),
-                        leading: Radio<ClockTypes>(
+                        title: const Text('24 Hour',
+                        style: styleMedium),
+                          leading: Radio<ClockTypes>(
                           value: ClockTypes.clock24,
                           fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
                             if (states.contains(WidgetState.selected)) {
